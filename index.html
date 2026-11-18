@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleepmish Game Studio</title>
+    <style>
+        :root {
+            --header-h: 120px;
+            --accent: #b3a589;
+            --bg: #0d0d0d;
+            --text: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { overflow-x: hidden; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-top: var(--header-h);
+        }
+
+        h1, h2, h3 { font-weight: normal; letter-spacing: 1px; }
+
+        a {
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a:hover { color: var(--accent); }
+
+        /* ---------- Шапка ---------- */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background-color: rgba(13, 13, 13, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid #222;
+            z-index: 200;
+        }
+
+        .logo-link { display: flex; align-items: center; }
+
+        .logo {
+            height: 104px;
+            width: auto;
+            max-width: 55vw;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .header-socials {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-socials a {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #2e2e2e;
+            border-radius: 50%;
+            color: #8f8f8f;
+            transition: color .3s, border-color .3s, transform .3s, background .3s;
+        }
+
+        .header-socials a:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .header-socials svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        .header-socials a.donate-icon {
+            color: var(--accent);
+            border-color: rgba(179, 165, 137, 0.55);
+        }
+
+        .header-socials a.donate-icon:hover {
+            background: var(--accent);
+            color: #0d0d0d;
+            transform: translateY(-2px);
+        }
+
+        .lang-switch {
+            font-family: sans-serif;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .lang-switch button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            padding: 2px 1px;
+            font-family: inherit;
+            transition: color 0.3s;
+        }
+
+        .lang-switch button:hover { color: var(--accent); }
+
+        .lang-switch button.active {
+            color: var(--text);
+            border-bottom: 1px solid var(--text);
+        }
+
+        /* ---------- Видео + размытые «филлеры» по бокам ---------- */
+        .hero {
+            width: 100%;
+            height: 60vh;
+            min-height: 320px;
+            overflow: hidden;
+            position: relative;
+            background-color: #000;
+        }
+
+        .hero video {
+            display: block;
+            pointer-events: none;
+        }
+
+        .hero-filler {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(30px) brightness(0.45) saturate(1.15);
+            transform: scale(1.2);
+        }
+
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            height: 100%;
+            width: auto;
+            transform: translateX(-50%);
+            opacity: 0.85;
+        }
+
+        /* ---------- Контент ---------- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .text-block {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            text-align: justify;
+            font-family: sans-serif;
+            color: #b0b0b0;
+            line-height: 1.8;
+        }
+
+        /* ---------- Карусель ---------- */
+        .carousel {
+            --slide-w: 50%;
+            --step: 115%;
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.4;
+            overflow: visible;
+            touch-action: pan-y;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: grab;
+            margin-top: 10px;
+        }
+
+        .carousel.grabbing { cursor: grabbing; }
+
+        .carousel-track {
+            position: absolute;
+            inset: 0;
+        }
+
+        .slide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: var(--slide-w);
+            aspect-ratio: 3 / 4;
+            border-radius: 6px;
+            overflow: hidden;
+            opacity: 0;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+            transform: translate(-50%, -50%);
+            transition: transform .56s cubic-bezier(.22, .61, .36, 1),
+                        opacity .56s ease;
+            will-change: transform, opacity;
+        }
+
+        .carousel.no-anim .slide { transition: none; }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        /* ---------- Подвал ---------- */
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            border-top: 1px solid #222;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            font-family: sans-serif;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .donate-section {
+            font-size: 0.9rem;
+            color: #666;
+            font-family: sans-serif;
+        }
+
+        .donate-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 25px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 2px;
+            transition: background .3s, color .3s;
+        }
+
+        .donate-btn:hover {
+            background-color: var(--accent);
+            color: #0d0d0d;
+        }
+
+        /* ---------- Мобильная версия ---------- */
+        @media (max-width: 768px) {
+            :root { --header-h: 88px; }
+
+            header { padding: 0 16px; }
+            .logo { height: 64px; }
+
+            .header-right { gap: 12px; }
+            .header-socials { gap: 8px; }
+            .header-socials a { width: 32px; height: 32px; }
+            .header-socials svg { width: 15px; height: 15px; }
+            .lang-switch button { margin-left: 6px; font-size: 13px; }
+
+            .container { padding: 50px 16px; }
+            .section-title { font-size: 1.5rem; }
+
+            .carousel {
+                --slide-w: 74%;
+                --step: 96%;
+                aspect-ratio: 0.95;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo-link">
+            <img src="Studio Logo (full).png" alt="Sleepmish Logo" class="logo">
+        </a>
+
+        <div class="header-right">
+            <div class="header-socials">
+                <a href="https://www.instagram.com/sleepmish.games" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="5"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/>
+                    </svg>
+                </a>
+                <a href="https://t.me/sleepmish" target="_blank" rel="noopener" title="Telegram" aria-label="Telegram">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M21.94 4.3 18.7 19.6c-.24 1.08-.88 1.34-1.79.83l-4.94-3.64-2.38 2.29c-.26.26-.48.48-.99.48l.35-4.98 9.06-8.19c.39-.35-.09-.54-.61-.19L6.2 13.1l-4.8-1.5c-1.04-.33-1.06-1.04.22-1.54l18.75-7.23c.87-.32 1.63.2 1.57 1.47z"/>
+                    </svg>
+                </a>
+                <!-- СЮДА ВСТАВЬТЕ ССЫЛКУ НА ДОНАТЫ (ИКОНКА В ШАПКЕ) -->
+                <a href="#" target="_blank" rel="noopener" class="donate-icon" title="Donate" aria-label="Donate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="lang-switch">
+                <button class="active" onclick="setLang('en', this)">EN</button>
+                <button onclick="setLang('ru', this)">RU</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <video class="hero-filler" src="DemoView.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+        <video class="hero-video" src="DemoView.mp4" autoplay loop muted playsinline></video>
+    </section>
+
+    <main class="container">
+        <h1 class="section-title" data-en="Sleepmish Game Studio" data-ru="Sleepmish Game Studio">Sleepmish Game Studio</h1>
+
+        <div class="text-block"
+             data-en="An emerging two-person indie game studio. Every model featured on this site is crafted from scratch by us in Blender - we do not use AI-generated imagery and strive to make everything by hand. We learn as we create, forging intriguing mechanics along the way. Currently, we are developing our debut title—a light horror experience set in Victorian England, brimming with intricate puzzles and a captivating atmosphere. We are at the very dawn of our journey and would deeply appreciate any support, even if it is simply a like on our social media."
+             data-ru="Начинающая игровая инди студия, состоящая из двух человек. Все модели, которые можно увидеть на сайте, создаются нами с нуля в Blender - мы не используем изображения, сгенерированные ИИ, и стараемся всё делать вручную. Мы учимся по ходу проекта и создаём интересные механики. Сейчас мы работаем над нашей первой игрой в духе Викторианской Англии - лёгкий хоррор с интересными загадками и захватывающей атмосферой. Мы находимся в самом начале нашего пути и были бы рады любой поддержке нашей деятельности, даже если это просто лайк в социальных сетях.">
+            An emerging two-person indie game studio. Every model and texture featured on this site is crafted from scratch by us in Blender — we do not use AI-generated imagery and strive to make everything by hand. We learn as we create, forging intriguing mechanics along the way. Currently, we are developing our debut title—a light horror experience set in Victorian England, brimming with intricate puzzles and a captivating atmosphere. We are at the very dawn of our journey and would deeply appreciate any support, even if it is simply a like on our social media.
+        </div>
+
+        <h2 class="section-title" style="font-size: 1.5rem; margin-top: 60px;"
+            data-en="Development Progress" data-ru="Процесс разработки">Development Progress</h2>
+
+        <div class="text-block"
+             data-en="The opening scene of our game is the protagonist's residence, which we are currently furnishing and tuning. Furthermore, we are actively implementing engaging mechanics for interacting with doors and environmental objects."
+             data-ru="Первая сцена нашей игры - это жилище главного персонажа, которое на данный момент мы наполняем мебелью и настраиваем окружение. Кроме того, мы сразу пишем интересные механики для взаимодействия с дверьми и предметами окружения.">
+            The opening scene of our game is the protagonist's residence, which we are currently furnishing and tuning. Furthermore, we are actively implementing engaging mechanics for interacting with doors and environmental objects.
+        </div>
+
+        <h2 class="section-title" style="font-size: 1.5rem; margin-top: 60px;"
+            data-en="Gallery" data-ru="Галерея">Gallery</h2>
+
+        <!-- Слайды Poster-01.png .. Poster-99.png подгружаются сюда автоматически -->
+        <div class="carousel" id="carousel" aria-roledescription="carousel">
+            <div class="carousel-track" id="carouselTrack"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://www.instagram.com/sleepmish.games" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://t.me/sleepmish" target="_blank" rel="noopener">Telegram</a>
+        </div>
+        <div class="donate-section">
+            <p data-en="Support our journey" data-ru="Поддержите наш проект">Support our journey</p>
+            <!-- СЮДА ВСТАВЬТЕ ССЫЛКУ НА ДОНАТЫ (КНОПКА ВНИЗУ) -->
+            <a href="#" target="_blank" rel="noopener" class="donate-btn"
+               data-en="Donate" data-ru="Поддержать">Donate</a>
+        </div>
+    </footer>
+
+    <script>
+        /* ---------------- Языки ---------------- */
+        function setLang(lang, btn = null) {
+            if (!btn) {
+                btn = document.querySelector('.lang-switch button[onclick="setLang(\'' + lang + '\', this)"]');
+            }
+            if (btn) {
+                document.querySelectorAll('.lang-switch button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+                el.innerHTML = el.getAttribute('data-' + lang);
+            });
+            document.documentElement.lang = lang;
+        }
+
+        window.addEventListener('load', () => setLang('en'));
+
+        /* ---------------- Автопоиск постеров и инициализация карусели ---------------- */
+        async function loadPosters() {
+            const found = [];
+            for (let i = 1; i <= 99; i++) {
+                const num = String(i).padStart(2, '0');
+                const src = `Poster-${num}.png`;
+                try {
+                    const res = await fetch(src, { method: 'HEAD' });
+                    if (!res.ok) break; // Останавливаемся, как только очередной номер не найден
+                    found.push({ src, alt: `Poster ${i}` });
+                } catch (e) {
+                    break;
+                }
+            }
+            // Резервный вариант, если страница открыта локально без веб-сервера (file://)
+            if (found.length === 0) {
+                found.push(
+                    { src: 'Poster-01.png', alt: 'Poster 1' },
+                    { src: 'Poster-02.png', alt: 'Poster 2' }
+                );
+            }
+            return found;
+        }
+
+        (async function initCarousel() {
+            const carousel = document.getElementById('carousel');
+            const track = document.getElementById('carouselTrack');
+            if (!carousel || !track) return;
+
+            const posters = await loadPosters();
+            const count = posters.length;
+            if (count < 1) return;
+
+            const originals = posters.map(p => {
+                const div = document.createElement('div');
+                div.className = 'slide';
+                const img = document.createElement('img');
+                img.src = p.src;
+                img.alt = p.alt;
+                div.appendChild(img);
+                return div;
+            });
+
+            // Клонируем набор слайдов для бесконечной прокрутки
+            const COPIES = 5;
+            const middleCopy = Math.floor(COPIES / 2);
+            const fragment = document.createDocumentFragment();
+            for (let c = 0; c < COPIES; c++) {
+                originals.forEach(node => fragment.appendChild(node.cloneNode(true)));
+            }
+            track.innerHTML = '';
+            track.appendChild(fragment);
+
+            const slides = Array.from(track.children);
+            slides.forEach(s => {
+                const img = s.querySelector('img');
+                if (img) img.draggable = false;
+            });
+
+            const MIN_SCALE = 0.8;
+            const MIN_OPACITY = 0.5;
+            const SNAP_DURATION = 560;
+            const SWIPE_THRESHOLD = 0.15;
+
+            let current = middleCopy * count;
+            let dragOffset = 0;
+            let slideWidth = 1;
+            let stepPercent = 115;
+            let dragging = false;
+            let startX = 0;
+            let moved = false;
+            let resetTimer = null;
+
+            function measure() {
+                const cs = getComputedStyle(carousel);
+                stepPercent = parseFloat(cs.getPropertyValue('--step')) || 115;
+                slideWidth = (slides[0] && slides[0].offsetWidth) || 1;
+            }
+
+            function paint() {
+                for (let i = 0; i < slides.length; i++) {
+                    const delta = (i - current) + dragOffset;
+                    const abs = Math.abs(delta);
+                    const k = Math.min(abs, 1);
+                    slides[i].style.transform =
+                        'translate(-50%, -50%) translateX(' + (delta * stepPercent) + '%) scale(' +
+                        (1 - k * (1 - MIN_SCALE)) + ')';
+                    slides[i].style.opacity = abs > 1.6 ? 0 : (1 - k * (1 - MIN_OPACITY));
+                    slides[i].style.zIndex = String(100 - Math.round(abs * 10));
+                    slides[i].style.pointerEvents = abs > 1.6 ? 'none' : '';
+                }
+            }
+
+            function jump() {
+                carousel.classList.add('no-anim');
+                paint();
+                void carousel.offsetWidth;
+                carousel.classList.remove('no-anim');
+            }
+
+            function normalize() {
+                const lo = middleCopy * count;
+                const hi = lo + count - 1;
+                let next = current;
+                while (next > hi) next -= count;
+                while (next < lo) next += count;
+                if (next !== current) {
+                    current = next;
+                    return true;
+                }
+                return false;
+            }
+
+            function step(dir) {
+                current += dir;
+                paint();
+                clearTimeout(resetTimer);
+                resetTimer = setTimeout(() => {
+                    if (normalize()) jump();
+                }, SNAP_DURATION + 90);
+            }
+
+            function onPointerMove(e) {
+                if (!dragging) return;
+                const dx = e.clientX - startX;
+                if (Math.abs(dx) > 5) moved = true;
+                dragOffset = dx / slideWidth;
+                paint();
+            }
+
+            function endDrag() {
+                if (!dragging) return;
+                dragging = false;
+                carousel.classList.remove('grabbing');
+                carousel.classList.remove('no-anim');
+                void carousel.offsetWidth;
+
+                const offset = dragOffset;
+                dragOffset = 0;
+
+                if (offset > SWIPE_THRESHOLD) {
+                    step(-1);
+                } else if (offset < -SWIPE_THRESHOLD) {
+                    step(1);
+                } else {
+                    paint();
+                }
+            }
+
+            function onPointerUp() {
+                window.removeEventListener('pointermove', onPointerMove);
+                window.removeEventListener('pointerup', onPointerUp);
+                window.removeEventListener('pointercancel', onPointerUp);
+                endDrag();
+            }
+
+            carousel.addEventListener('pointerdown', e => {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                if (!e.isPrimary) return;
+                if (dragging) return;
+
+                clearTimeout(resetTimer);
+                if (normalize()) jump();
+
+                dragging = true;
+                moved = false;
+                startX = e.clientX;
+                dragOffset = 0;
+
+                carousel.classList.add('grabbing');
+                carousel.classList.add('no-anim');
+
+                window.addEventListener('pointermove', onPointerMove);
+                window.addEventListener('pointerup', onPointerUp);
+                window.addEventListener('pointercancel', onPointerUp);
+            });
+
+            carousel.addEventListener('click', e => {
+                if (moved) { moved = false; return; }
+                const slide = e.target.closest('.slide');
+                if (!slide) return;
+                const idx = slides.indexOf(slide);
+                if (idx === -1) return;
+                const delta = idx - current;
+                if (delta === 1) step(1);
+                else if (delta === -1) step(-1);
+            });
+
+            window.addEventListener('resize', () => {
+                measure();
+                paint();
+            });
+
+            measure();
+            jump();
+        })();
+    </script>
+</body>
+</html>
